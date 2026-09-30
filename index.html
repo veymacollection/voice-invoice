@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>فاکتور صوتی</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f5f3f0;
+  font-family: Vazirmatn, sans-serif;
+  color: #292524;
+}
+
+.container {
+  max-width: 650px;
+  margin: auto;
+  padding: 18px;
+}
+
+.header {
+  background: #241f1c;
+  color: white;
+  border-radius: 22px;
+  padding: 22px;
+  margin-bottom: 15px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 23px;
+}
+
+.header p {
+  margin: 7px 0 0;
+  color: #d6d0cb;
+  font-size: 13px;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.05);
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #6b625d;
+}
+
+input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #ddd7d2;
+  border-radius: 13px;
+  padding: 0 13px;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+  margin-bottom: 13px;
+}
+
+input:focus {
+  border-color: #8b6f47;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  border: 0;
+  border-radius: 14px;
+  min-height: 48px;
+  padding: 10px 15px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.voice-btn {
+  width: 100%;
+  min-height: 75px;
+  background: #241f1c;
+  color: white;
+  font-size: 17px;
+}
+
+.voice-btn.listening {
+  background: #9b3d35;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(.98);
+    opacity: .8;
+  }
+}
+
+.shake-box {
+  text-align: center;
+  border: 2px dashed #d8d0c8;
+  border-radius: 16px;
+  padding: 15px;
+  margin-top: 12px;
+  color: #6b625d;
+  font-size: 13px;
+}
+
+.result {
+  background: #f7f4f0;
+  border-radius: 15px;
+  padding: 15px;
+  margin-top: 15px;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid #e5dfda;
+}
+
+.result-row:last-child {
+  border-bottom: 0;
+}
+
+.total {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+.save {
+  width: 100%;
+  background: #8b6f47;
+  color: white;
+  margin-top: 12px;
+}
+
+.secondary {
+  background: #eee9e4;
+  color: #423b36;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.history-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice {
+  border: 1px solid #e5dfda;
+  border-radius: 14px;
+  padding: 13px;
+  margin-top: 10px;
+}
+
+.invoice strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.small {
+  font-size: 12px;
+  color: #77706b;
+}
+
+.status {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6b625d;
+  min-height: 20px;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  padding: 20px 5px;
+}
+
+@media(max-width:420px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>🧾 فاکتور صوتی</h1>
+    <p>تکان بده، بگو، فاکتور آماده میشه</p>
+  </div>
+
+  <div class="card">
+
+    <button class="voice-btn" id="voiceBtn">
+      🎙️ شروع ثبت صوتی
+    </button>
+
+    <div class="shake-box">
+      📱 گوشی را تکان بده تا حالت ثبت صوتی فعال شود
+      <br>
+      <span class="small">اگر تکان کار نکرد، همین دکمه را بزن.</span>
+    </div>
+
+    <div class="status" id="status">
+      آماده دریافت فاکتور
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <label>مشتری</label>
+    <input id="customer" placeholder="مثلاً آقای فیضی">
+
+    <label>محصول</label>
+    <input id="product" placeholder="مثلاً شلوار لانیا">
+
+    <div class="row">
+
+      <div>
+        <label>تعداد</label>
+        <input id="quantity" type="number" inputmode="numeric" placeholder="24">
+      </div>
+
+      <div>
+        <label>قیمت واحد</label>
+        <input id="price" type="number" inputmode="numeric" placeholder="350000">
+      </div>
+
+    </div>
+
+    <div class="result">
+
+      <div class="result-row">
+        <span>مشتری</span>
+        <strong id="showCustomer">—</strong>
+      </div>
+
+      <div class="result-row">
+        <span>محصول</span>
+        <strong id="showProduct">—</strong>
+      </div>
+
+      <div class="result-row">
+        <span>تعداد</span>
+        <strong id="showQuantity">۰</strong>
+      </div>
+
+      <div class="result-row">
+        <span>قیمت واحد</span>
+        <strong id="showPrice">۰</strong>
+      </div>
+
+      <div class="total">
+        جمع: <span id="total">۰</span> تومان
+      </div>
+
+    </div>
+
+    <button class="save" id="saveBtn">
+      ✅ ثبت فاکتور
+    </button>
+
+    <button class="secondary" id="clearBtn">
+      پاک کردن
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <div class="history-title">
+      <strong>📋 فاکتورهای ثبت‌شده</strong>
+      <span id="count" class="small">۰ فاکتور</span>
+    </div>
+
+    <div id="history">
+      <div class="empty">
+        هنوز فاکتوری ثبت نشده
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const customer = document.getElementById("customer");
+const product = document.getElementById("product");
+const quantity = document.getElementById("quantity");
+const price = document.getElementById("price");
+
+const showCustomer = document.getElementById("showCustomer");
+const showProduct = document.getElementById("showProduct");
+const showQuantity = document.getElementById("showQuantity");
+const showPrice = document.getElementById("showPrice");
+const total = document.getElementById("total");
+
+const voiceBtn = document.getElementById("voiceBtn");
+const saveBtn = document.getElementById("saveBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+const status = document.getElementById("status");
+const history = document.getElementById("history");
+const count = document.getElementById("count");
+
+let invoices = JSON.parse(localStorage.getItem("voiceInvoices") || "[]");
+
+
+// -----------------------------
+// تبدیل اعداد فارسی به انگلیسی
+// -----------------------------
+
+function normalizeNumbers(text) {
+
+  const persian = "۰۱۲۳۴۵۶۷۸۹";
+  const arabic = "٠١٢٣٤٥٦٧٨٩";
+
+  return text
+    .replace(/[۰-۹]/g, d => persian.indexOf(d))
+    .replace(/[٠-٩]/g, d => arabic.indexOf(d));
+
+}
+
+
+// -----------------------------
+// فرمت قیمت
+// -----------------------------
+
+function formatNumber(number) {
+
+  return Number(number || 0).toLocaleString("fa-IR");
+
+}
+
+
+// -----------------------------
+// بروزرسانی فاکتور
+// -----------------------------
+
+function updateInvoice() {
+
+  const q = Number(quantity.value) || 0;
+  const p = Number(price.value) || 0;
+
+  const sum = q * p;
+
+  showCustomer.textContent = customer.value || "—";
+  showProduct.textContent = product.value || "—";
+  showQuantity.textContent = formatNumber(q);
+  showPrice.textContent = formatNumber(p);
+  total.textContent = formatNumber(sum);
+
+}
+
+
+// -----------------------------
+// ورودی‌ها
+// -----------------------------
+
+customer.addEventListener("input", updateInvoice);
+product.addEventListener("input", updateInvoice);
+quantity.addEventListener("input", updateInvoice);
+price.addEventListener("input", updateInvoice);
+
+
+// -----------------------------
+// تشخیص اعداد از جمله صوتی
+// -----------------------------
+
+function findNumbers(text) {
+
+  text = normalizeNumbers(text);
+
+  const numbers = text.match(/\d[\d,.\s]*/g) || [];
+
+  return numbers
+    .map(x => x.replace(/[,\s]/g, ""))
+    .map(Number)
+    .filter(x => Number.isFinite(x));
+
+}
+
+
+// -----------------------------
+// پردازش جمله صوتی
+// -----------------------------
+
+function processVoice(text) {
+
+  console.log("VOICE:", text);
+
+  text = normalizeNumbers(text);
+
+  const numbers = findNumbers(text);
+
+  if (numbers.length < 2) {
+
+    status.textContent =
+      "نتونستم تعداد و قیمت را پیدا کنم. دوباره بگو.";
+
+    return;
+
+  }
+
+  /*
+    مثال:
+
+    شلوار لانیا آقای فیضی 24 عدد فی 350
+
+    اعداد:
+    24
+    350
+
+    چون قیمت ممکن است به صورت 350 گفته شود،
+    آن را 350000 در نظر می‌گیریم.
+  */
+
+  let q = numbers[0];
+  let p = numbers[1];
+
+  if (p < 10000) {
+    p = p * 1000;
+  }
+
+  quantity.value = q;
+  price.value = p;
+
+
+  // حذف بخش‌های عددی از متن
+  let clean = text
+    .replace(/\d[\d,.\s]*/g, " ")
+    .replace(/\b(عدد|تا|تایی|فی|تومان|هزار)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+
+  // تشخیص مشتری با «آقای» یا «خانم»
+  let customerMatch =
+    clean.match(/(آقای|اقای|خانم)\s+(.+?)(?=\s*$)/i);
+
+  if (customerMatch) {
+
+    customer.value =
+      customerMatch[1] + " " + customerMatch[2];
+
+    // تلاش برای جدا کردن محصول
+    let beforeCustomer =
+      clean.substring(
+        0,
+        clean.indexOf(customerMatch[0])
+      ).trim();
+
+    if (beforeCustomer) {
+      product.value = beforeCustomer;
+    }
+
+  } else {
+
+    // اگر مشتری مشخص نبود،
+    // متن را به عنوان محصول می‌گیریم
+    product.value = clean;
+
+  }
+
+  updateInvoice();
+
+  status.textContent =
+    "فاکتور از روی صدا آماده شد؛ اطلاعات را بررسی کن.";
+
+}
+
+
+// -----------------------------
+// تشخیص صدا
+// -----------------------------
+
+let recognition = null;
+
+const SpeechRecognition =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+
+  recognition = new SpeechRecognition();
+
+  recognition.lang = "fa-IR";
+
+  recognition.continuous = false;
+
+  recognition.interimResults = false;
+
+
+  recognition.onstart = function() {
+
+    voiceBtn.classList.add("listening");
+
+    voiceBtn.textContent =
+      "🔴 دارم گوش می‌دم...";
+
+    status.textContent =
+      "مثلاً بگو: شلوار لانیا آقای فیضی ۲۴ عدد فی ۳۵۰";
+
+  };
+
+
+  recognition.onresult = function(event) {
+
+    const text =
+      event.results[0][0].transcript;
+
+    status.textContent =
+      "🎙️ " + text;
+
+    processVoice(text);
+
+  };
+
+
+  recognition.onerror = function(event) {
+
+    console.log(event.error);
+
+    status.textContent =
+      "خطا در دریافت صدا؛ دوباره امتحان کن.";
+
+  };
+
+
+  recognition.onend = function() {
+
+    voiceBtn.classList.remove("listening");
+
+    voiceBtn.textContent =
+      "🎙️ شروع ثبت صوتی";
+
+  };
+
+} else {
+
+  voiceBtn.disabled = true;
+
+  voiceBtn.textContent =
+    "مرورگر شما از تشخیص صدا پشتیبانی نمی‌کند";
+
+}
+
+
+// -----------------------------
+// دکمه صدا
+// -----------------------------
+
+voiceBtn.addEventListener("click", function() {
+
+  if (!recognition) return;
+
+  try {
+
+    recognition.start();
+
+  } catch(e) {
+
+    console.log(e);
+
+  }
+
+});
+
+
+// -----------------------------
+// ثبت فاکتور
+// -----------------------------
+
+saveBtn.addEventListener("click", function() {
+
+  const c = customer.value.trim();
+  const pr = product.value.trim();
+  const q = Number(quantity.value);
+  const p = Number(price.value);
+
+  if (!c || !pr || !q || !p) {
+
+    status.textContent =
+      "لطفاً مشتری، محصول، تعداد و قیمت را کامل کن.";
+
+    return;
+
+  }
+
+  const invoice = {
+
+    id: Date.now(),
+
+    customer: c,
+
+    product: pr,
+
+    quantity: q,
+
+    price: p,
+
+    total: q * p,
+
+    date: new Date().toLocaleString("fa-IR")
+
+  };
+
+
+  invoices.unshift(invoice);
+
+  localStorage.setItem(
+    "voiceInvoices",
+    JSON.stringify(invoices)
+  );
+
+
+  renderHistory();
+
+  status.textContent =
+    "✅ فاکتور با موفقیت ثبت شد.";
+
+});
+
+
+// -----------------------------
+// پاک کردن
+// -----------------------------
+
+clearBtn.addEventListener("click", function() {
+
+  customer.value = "";
+  product.value = "";
+  quantity.value = "";
+  price.value = "";
+
+  updateInvoice();
+
+  status.textContent =
+    "فرم پاک شد.";
+
+});
+
+
+// -----------------------------
+// نمایش فاکتورها
+// -----------------------------
+
+function renderHistory() {
+
+  count.textContent =
+    formatNumber(invoices.length) + " فاکتور";
+
+
+  if (!invoices.length) {
+
+    history.innerHTML =
+      '<div class="empty">هنوز فاکتوری ثبت نشده</div>';
+
+    return;
+
+  }
+
+
+  history.innerHTML = invoices.map(inv => `
+
+    <div class="invoice">
+
+      <strong>
+        ${escapeHtml(inv.customer)}
+      </strong>
+
+      <div>
+        ${escapeHtml(inv.product)}
+        ×
+        ${formatNumber(inv.quantity)}
+      </div>
+
+      <div class="small">
+        فی ${formatNumber(inv.price)}
+        تومان
+      </div>
+
+      <div style="margin-top:7px;font-weight:800">
+        ${formatNumber(inv.total)}
+        تومان
+      </div>
+
+      <div class="small" style="margin-top:5px">
+        ${escapeHtml(inv.date)}
+      </div>
+
+    </div>
+
+  `).join("");
+
+}
+
+
+// -----------------------------
+// جلوگیری از ورود HTML
+// -----------------------------
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+// -----------------------------
+// تشخیص تکان گوشی
+// -----------------------------
+
+let lastX = null;
+let lastY = null;
+let lastZ = null;
+
+let lastShake = 0;
+
+
+function handleMotion(event) {
+
+  const acc = event.accelerationIncludingGravity;
+
+  if (!acc) return;
+
+  const x = acc.x || 0;
+  const y = acc.y || 0;
+  const z = acc.z || 0;
+
+
+  if (lastX === null) {
+
+    lastX = x;
+    lastY = y;
+    lastZ = z;
+
+    return;
+
+  }
+
+
+  const diff =
+    Math.abs(x - lastX) +
+    Math.abs(y - lastY) +
+    Math.abs(z - lastZ);
+
+
+  lastX = x;
+  lastY = y;
+  lastZ = z;
+
+
+  if (diff > 35) {
+
+    const now = Date.now();
+
+    if (now - lastShake > 1500) {
+
+      lastShake = now;
+
+      startVoiceFromShake();
+
+    }
+
+  }
+
+}
+
+
+// -----------------------------
+// فعال کردن صدا با تکان
+// -----------------------------
+
+function startVoiceFromShake() {
+
+  status.textContent =
+    "📱 تکان تشخیص داده شد؛ بگو...";
+
+  if (recognition) {
+
+    try {
+
+      recognition.start();
+
+    } catch(e) {
+
+      console.log(e);
+
+    }
+
+  }
+
+}
+
+
+// -----------------------------
+// فعال کردن سنسور
+// -----------------------------
+
+function enableMotion() {
+
+  if (
+    typeof DeviceMotionEvent !== "undefined" &&
+    typeof DeviceMotionEvent.requestPermission === "function"
+  ) {
+
+    DeviceMotionEvent
+      .requestPermission()
+      .then(permission => {
+
+        if (permission === "granted") {
+
+          window.addEventListener(
+            "devicemotion",
+            handleMotion
+          );
+
+          status.textContent =
+            "📱 تشخیص تکان فعال شد.";
+
+        }
+
+      })
+      .catch(() => {});
+
+  } else {
+
+    window.addEventListener(
+      "devicemotion",
+      handleMotion
+    );
+
+  }
+
+}
+
+
+// اولین لمس صفحه برای فعال‌سازی سنسور
+document.addEventListener(
+  "click",
+  function firstTouch() {
+
+    enableMotion();
+
+    document.removeEventListener(
+      "click",
+      firstTouch
+    );
+
+  },
+  { once: true }
+);
+
+
+// نمایش اولیه
+renderHistory();
+updateInvoice();
+
+</script>
+
+</body>
+</html>
